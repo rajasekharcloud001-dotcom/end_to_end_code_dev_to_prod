@@ -1,0 +1,75 @@
+name: Hello GCP Pipeline
+
+on:
+  push:
+    branches:
+      - develop
+      - release
+      - main
+
+jobs:
+  deploy-dev:
+    if: github.ref == 'refs/heads/develop'
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Auth to GCP DEV
+        uses: google-github-actions/auth@v1
+        with:
+          workload_identity_provider: projects/808363615639/locations/global/workloadIdentityPools/github-pool/providers/github-provider
+          service_account: dev-sa@hello-dev-491512.iam.gserviceaccount.com
+
+      - name: Run Hello DEV
+        env:
+          ENV_NAME: dev
+          GCP_PROJECT: hello-dev-491512
+        run: python hello.py
+
+  deploy-qa:
+    if: github.ref == 'refs/heads/release'
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Auth to GCP QA
+        uses: google-github-actions/auth@v1
+        with:
+          workload_identity_provider: projects/17394145056/locations/global/workloadIdentityPools/github-pool/providers/github-provider
+          service_account: qa-service-account@project-94da0803-7bb2-4df9-888.iam.gserviceaccount.com
+
+      - name: Run Hello QA
+        env:
+          ENV_NAME: qa
+          GCP_PROJECT: project-94da0803-7bb2-4df9-888
+        run: python hello.py
+
+  deploy-prod:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Auth to GCP PROD
+        uses: google-github-actions/auth@v1
+        with:
+          workload_identity_provider: projects/972095274324/locations/global/workloadIdentityPools/github-pool/providers/github-provider
+          service_account: prod-service-account@project-973ed99e-f4bc-410f-92b.iam.gserviceaccount.com
+
+      - name: Run Hello PROD
+        env:
+          ENV_NAME: prod
+          GCP_PROJECT: project-973ed99e-f4bc-410f-92b
+        run: python hello.py
