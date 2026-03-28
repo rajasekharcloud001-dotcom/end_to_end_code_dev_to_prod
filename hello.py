@@ -6,6 +6,7 @@ def say_hello():
     message = f"hello from {env.upper()} enviroment"
     print(message)
     print(f"gcp project :{project}")
+    print("Pipeline is working perfectly! ✅")
 if __name__=="__main__":
     say_hello()
 
